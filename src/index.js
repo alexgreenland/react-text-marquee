@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 const FPS = 20;
 const STEP = 1;
-const TIMEOUT = 1 / FPS * 1000;
 
 class Marquee extends Component {
 
@@ -26,10 +25,17 @@ class Marquee extends Component {
     trailing: 0
   };
 
-  state = {
-    animatedWidth: 0,
-    overflowWidth: 0
-  };
+  constructor (props) {
+    super(props)
+    this.fps = this.props.fps || FPS
+    this.step = this.props.step || STEP
+    this.animationTimeout = (1 / this.fps) * 1000
+
+    this.state = {
+      animatedWidth: 0,
+      overflowWidth: 0
+    };
+  }
 
   componentDidMount() {
     this.measureText();
@@ -78,11 +84,11 @@ class Marquee extends Component {
   startAnimation = () => {
     clearTimeout(this.marqueeTimer);
     const isLeading = this.state.animatedWidth === 0;
-    const timeout = isLeading ? this.props.leading : TIMEOUT;
+    const timeout = isLeading ? this.props.leading : this.animationTimeout;
 
     const animate = () => {
       const {overflowWidth} = this.state;
-      let animatedWidth = this.state.animatedWidth + STEP;
+      let animatedWidth = this.state.animatedWidth + this.step;
       const isRoundOver = animatedWidth > overflowWidth;
 
       if (isRoundOver) {
@@ -96,11 +102,11 @@ class Marquee extends Component {
       if (isRoundOver && this.props.trailing) {
         this.marqueeTimer = setTimeout(() => {
           this.setState({ animatedWidth });
-          this.marqueeTimer = setTimeout(animate, TIMEOUT);
+          this.marqueeTimer = setTimeout(animate, this.animationTimeout);
         }, this.props.trailing);
       } else {
         this.setState({ animatedWidth });
-        this.marqueeTimer = setTimeout(animate, TIMEOUT);
+        this.marqueeTimer = setTimeout(animate, this.animationTimeout);
       }
     };
 
@@ -122,6 +128,13 @@ class Marquee extends Component {
     }
   }
 
+  getTitle () {
+    if (this.props.tooltip) {
+      return this.props.text
+    }
+    return null
+  }
+
   render() {
     const style = {
       'position': 'relative',
@@ -139,7 +152,7 @@ class Marquee extends Component {
           <span
             ref={(el) => { this.text = el; }}
             style={style}
-            title={this.props.text}
+            title={this.getTitle()}
           >
             {this.props.text}
           </span>
@@ -158,7 +171,7 @@ class Marquee extends Component {
         <span
           ref={(el) => { this.text = el; }}
           style={style}
-          title={this.props.text}
+          title={this.getTitle()}
         >
           {this.props.text}
         </span>
