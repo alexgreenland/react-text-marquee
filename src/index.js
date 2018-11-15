@@ -71,6 +71,8 @@ class Marquee extends Component {
     if (this.props.hoverToStop) {
       clearTimeout(this.marqueeTimer);
     } else if (this.state.overflowWidth > 0) {
+      clearTimeout(this.marqueeTimer)
+      clearTimeout(this.marqueeLoopTimer)
       clearTimeout(this.hoverLeftTimeout)
       this.startAnimation();
     }
