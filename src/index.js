@@ -34,7 +34,9 @@ class Marquee extends Component {
 
     this.state = {
       animatedWidth: 0,
-      overflowWidth: 0
+      overflowWidth: 0,
+      startOfLoop: false,
+      endOfLoop: false
     };
   }
 
@@ -68,7 +70,8 @@ class Marquee extends Component {
   handleMouseEnter = () => {
     if (this.props.hoverToStop) {
       clearTimeout(this.marqueeTimer);
-    } else if (this.state.overflowWidth > 0){
+    } else if (this.state.overflowWidth > 0) {
+      clearTimeout(this.hoverLeftTimeout)
       this.startAnimation();
     }
   }
@@ -79,9 +82,31 @@ class Marquee extends Component {
     } else {
       clearTimeout(this.marqueeTimer)
       clearTimeout(this.marqueeLoopTimer)
+      clearTimeout(this.hoverLeftTimeout)
       cancelAnimationFrame(this.marqueeRaf)
+
+      if (this.state.animatedWidth > 0) {
+        this.setState({
+          hoverLeft: true
+        })
+  
+        this.hoverLeftTimeout = setTimeout(() => {
+          this.setState({
+            hoverLeft: false
+          })
+        }, 700)
+      } else {
+        this.setState({
+          hoverLeft: false
+        })
+      }
+
       this.marqueeRaf = requestAnimationFrame(() => {
-        this.setState({ animatedWidth: 0 })
+        this.setState({
+          animatedWidth: 0,
+          startOfLoop: false,
+          endOfLoop: false
+        })
       })
     }
   }
@@ -107,9 +132,16 @@ class Marquee extends Component {
 
       if (isRoundOver && this.props.trailing) {
         clearTimeout(this.marqueeLoopTimer)
+        this.setState({
+          endOfLoop: true
+        })
+
         this.marqueeTimer = setTimeout(() => {
           this.marqueeRaf = requestAnimationFrame(() => {
-            this.setState({ animatedWidth })
+            this.setState({
+              animatedWidth,
+              startOfLoop: true
+            })
           })
           this.marqueeLoopTimer = setTimeout(() => {
             this.marqueeTimer = setTimeout(animate, this.animationTimeout);
@@ -117,7 +149,11 @@ class Marquee extends Component {
         }, this.props.trailing);
       } else {
         this.marqueeRaf = requestAnimationFrame(() => {
-          this.setState({ animatedWidth })
+          this.setState({
+            animatedWidth,
+            startOfLoop: false,
+            endOfLoop: false
+          })
         })
         this.marqueeTimer = setTimeout(animate, this.animationTimeout);
       }
@@ -153,8 +189,8 @@ class Marquee extends Component {
       overflow: 'hidden'
     }
 
-    if (this.state.overflowWidth > 0 && this.state.animatedWidth === 0) {
-      style['text-overflow'] = 'ellipsis'
+    if (this.state.overflowWidth > 0 && this.state.animatedWidth === 0 && !this.state.startOfLoop && !this.state.hoverLeft) {
+      style.textOverflow = 'ellipsis'
     }
 
     return style
@@ -166,7 +202,11 @@ class Marquee extends Component {
       'display': 'inline-block',
       'transform': `translateX(-${this.state.animatedWidth}px)`,
       'whiteSpace': 'nowrap'
-    };
+    }
+
+    if (this.state.endOfLoop || this.state.startOfLoop || this.state.hoverLeft) {
+      style.transition = 'transform ease 0.7s'
+    }
 
     if (this.state.overflowWidth < 0) {
       return (
