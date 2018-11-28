@@ -1,7 +1,7 @@
 {
   "name": "@epi/react-text-marquee",
   "description": "A <marquee> component for react.",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "main": "lib/index.js",
   "author": "jcgertig",
   "repository": "jcgertig/react-text-marquee",
