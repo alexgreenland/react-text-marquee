@@ -68,6 +68,10 @@ class Marquee extends Component {
   }
 
   handleMouseEnter = () => {
+    if (this.props.disabled) {
+      return
+    }
+
     if (this.props.hoverToStop) {
       clearTimeout(this.marqueeTimer);
     } else if (this.state.overflowWidth > 0) {
@@ -83,6 +87,10 @@ class Marquee extends Component {
   }
 
   handleMouseLeave = () => {
+    if (this.props.disabled) {
+      return
+    }
+
     if (this.props.hoverToStop && this.state.overflowWidth > 0) {
       this.startAnimation();
     } else {
