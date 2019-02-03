@@ -8,6 +8,7 @@
   "license": "MIT",
   "scripts": {
     "compile": "babel src/ --out-dir lib",
+    "build": "npm run compile",
     "bundle": "babel src/ --out-file dist/react-text-marquee.js",
     "prepublish": "npm run compile",
     "test:watch": "jest --watch --coverage",
